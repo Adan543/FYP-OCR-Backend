@@ -1,0 +1,21 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>OCR Result</title>
+</head>
+<body>
+    <h1>OCR Result</h1>
+
+    {% if extracted_texts %}
+        <h2>Extracted Text:</h2>
+        {% for text in extracted_texts %}
+            <p>{{ text }}</p>
+        {% endfor %}
+    {% else %}
+        <p>No text extracted.</p>
+    {% endif %}
+
+    <a href="/">Go back</a>
+</body>
+</html>
