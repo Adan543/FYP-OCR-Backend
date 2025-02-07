@@ -1,6 +1,8 @@
-import os, json
+import os
+import json
 from flask import Blueprint, request, render_template, jsonify
 from ocr_utils import perform_image_ocr, perform_pdf_ocr, UPLOAD_FOLDER
+from tts_utils import text_to_speech  # Import TTS function
 
 routes = Blueprint('routes', __name__)
 
@@ -16,11 +18,12 @@ def scan_image():
             return jsonify({"status": False, "message": "please provide  a image"}), 500
         file = request.files.getlist('images')
 
-        if not file.filename.lower().endswith(('png', 'jpg', 'jpeg')):
-            return jsonify({"status": False, "message": "Invalid image format. Please upload PNG or JPG"}), 500
-
         extracted_texts = []
+
         for each_file in file:
+            if not each_file.filename.lower().endswith(('png', 'jpg', 'jpeg')):  # Now checking for each file
+                return jsonify({"status": False, "message": "Invalid image format. Please upload PNG or JPG"}), 500
+
             file_path = os.path.join(UPLOAD_FOLDER, each_file.filename)
             each_file.save(file_path)
 
@@ -69,3 +72,18 @@ def scan_pdf():
 
     except Exception as e:
         return jsonify({'status':False, "message" : str(e)}), 500
+@routes.route('/tts', methods=['POST'])
+def generate_tts():
+    """Convert text to speech and return Base64 encoded audio."""
+    try:
+        data = request.json
+        text = data.get("text", "").strip()
+
+        if not text:
+            return jsonify({"error": "اردو متن فراہم کریں۔"}), 400
+
+        base64_audio = text_to_speech(text)
+        return jsonify({"audio_base64": base64_audio})
+
+    except Exception as e:
+        return jsonify({"error": str(e)}), 500

@@ -2,23 +2,68 @@
 <html lang="en">
 <head>
     <meta charset="UTF-8">
-    <title>Upload File for OCR</title>
+    <title>OCR and TTS Services</title>
 </head>
 <body>
-    <h1>Upload a File for OCR</h1>
+    <h1>OCR and Text-to-Speech Services</h1>
 
+    <!-- Image OCR Form -->
     <h2>Scan an Image</h2>
-    <form action="/scan-image" method="POST" enctype="multipart/form-data">
+    <form id="imageForm" action="/ocr/scan-image" method="POST" enctype="multipart/form-data">
         <label for="image">Choose an image (PNG, JPG, JPEG):</label>
-        <input type="file" id="image" name="file" accept="image/*" required>
+        <input type="file" id="image" name="images" accept="image/*" required>
         <button type="submit">Upload and Perform OCR</button>
     </form>
+    <p id="imageError" style="color: red;"></p>
 
+    <!-- PDF OCR Form -->
     <h2>Scan a PDF</h2>
-    <form action="/scan-pdf" method="POST" enctype="multipart/form-data">
+    <form id="pdfForm" action="/ocr/scan-pdf" method="POST" enctype="multipart/form-data">
         <label for="pdf">Choose a PDF:</label>
         <input type="file" id="pdf" name="file" accept="application/pdf" required>
         <button type="submit">Upload and Perform OCR</button>
     </form>
+    <p id="pdfError" style="color: red;"></p>
+
+    <!-- Text-to-Speech (TTS) Form -->
+    <h2>Text to Speech</h2>
+    <form id="ttsForm">
+        <label for="text">Enter Urdu Text:</label>
+        <textarea id="text" name="text" rows="4" required></textarea>
+        <button type="button" onclick="performTTS()">Convert to Speech</button>
+    </form>
+    <p id="ttsError" style="color: red;"></p>
+    <audio id="audioPlayer" controls style="display: none;"></audio>
+
+    <script>
+        function performTTS() {
+            const text = document.getElementById('text').value.trim();
+            if (!text) {
+                document.getElementById('ttsError').textContent = 'براہ کرم اردو متن فراہم کریں۔';
+                return;
+            }
+            document.getElementById('ttsError').textContent = '';
+
+            fetch('/tts', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ text })
+            })
+            .then(response => response.json())
+            .then(data => {
+                if (data.error) {
+                    document.getElementById('ttsError').textContent = data.error;
+                } else {
+                    const audioPlayer = document.getElementById('audioPlayer');
+                    audioPlayer.src = 'data:audio/mp3;base64,' + data.audio_base64;
+                    audioPlayer.style.display = 'block';
+                    audioPlayer.play();
+                }
+            })
+            .catch(error => {
+                document.getElementById('ttsError').textContent = 'کچھ غلط ہو گیا ہے۔';
+            });
+        }
+    </script>
 </body>
 </html>
