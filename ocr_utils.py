@@ -55,6 +55,22 @@ def perform_image_ocr(image_path):
 
     return jsonify({"status": True, "data": extracted_texts})
 
+def perform_image_ocr_for_pdf(image_path):
+    """Perform OCR on an image file and clean the output."""
+    extracted_texts = []
+    output_path = ocr.get_output_path(image_path)
+    status = ocr.perform_ocr(image_path, output_path)
+
+    if status.value in ['Done!', 'Already done!']:
+        with open(output_path, 'r', encoding='utf8') as output_file:
+            extracted_texts.append(clean_ocr_output(output_file.read()))
+
+        os.remove(image_path)
+        os.remove(output_path)
+
+    return extracted_texts
+
+
 def perform_pdf_ocr(pdf_path):
     """Perform OCR on a PDF file by converting it to images first."""
     extracted_texts = []
@@ -63,16 +79,9 @@ def perform_pdf_ocr(pdf_path):
     extracted_texts = []
 
     for img_path in images:
-        ocr_output = perform_image_ocr(img_path)
-        data = ocr_output.data
+        ocr_output = perform_image_ocr_for_pdf(img_path)
 
-        # Ensure data is a string before extending it
-        if isinstance(data, bytes):
-            data = data.decode('utf-8')  # Decode bytes to a UTF-8 string
-
-        # Append text instead of extending (which expects a list)
-        extracted_texts.append(data)
-        print('Extracted text:', data)
+        extracted_texts.append(ocr_output[0])
 
     # Remove the PDF file after processing
     os.remove(pdf_path)

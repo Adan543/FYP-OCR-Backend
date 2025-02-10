@@ -67,7 +67,6 @@ def scan_pdf():
         # if (not (extracted_texts.status)):
         #     return jsonify({'status': False, "message": extracted_texts.message}), 500
 
-        print('ocr-response', extracted_texts)
         return extracted_texts
 
     except Exception as e:
@@ -83,7 +82,7 @@ def generate_tts():
             return jsonify({"error": "اردو متن فراہم کریں۔"}), 400
 
         base64_audio = text_to_speech(text)
-        return jsonify({"audio_base64": base64_audio})
+        return jsonify({"audio_base64": base64_audio, "status": True})
 
     except Exception as e:
         return jsonify({"error": str(e)}), 500
