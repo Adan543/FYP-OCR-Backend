@@ -76,6 +76,9 @@ def perform_pdf_ocr(pdf_path):
     extracted_texts = []
     images = convert_pdf_to_images(pdf_path)
 
+    if len(images) > 4:
+        return jsonify({"status": False, "message": "PDF exceeds the maximum limit of 5 images."})
+
     extracted_texts = []
 
     for img_path in images:
@@ -86,4 +89,4 @@ def perform_pdf_ocr(pdf_path):
     # Remove the PDF file after processing
     os.remove(pdf_path)
 
-    return jsonify({"status": True, "data": extracted_texts}), 200
+    return jsonify({"status": True, "data": extracted_texts})

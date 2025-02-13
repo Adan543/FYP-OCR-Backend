@@ -64,8 +64,8 @@ def scan_pdf():
 
         extracted_texts = perform_pdf_ocr(file_path)
 
-        # if (not (extracted_texts.status)):
-        #     return jsonify({'status': False, "message": extracted_texts.message}), 500
+        if (not (extracted_texts.status)):
+            return jsonify({'status': False, "message": extracted_texts.message}), 500
 
         return extracted_texts
 
